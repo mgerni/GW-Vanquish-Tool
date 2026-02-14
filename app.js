@@ -72,7 +72,8 @@ function renderFoes() {
     "Enchantment_Removal",
     "Hex_Removal",
     "Condition_Removal",
-    "IMS"
+    "IMS",
+    "Variant"
   ];
 
   // Effect colors
@@ -85,13 +86,17 @@ function renderFoes() {
     Enchantment_Removal: "#cba3ff",
     Hex_Removal: "#b28aff",
     Condition_Removal: "#9966ff",
-    IMS: "#8fff8f"
+    IMS: "#8fff8f",
+    Variant: "#ff6666"
   };
 
   // Determine which effects are present in this area
   const activeEffects = new Set();
   areaData.foes.forEach(f => {
     f.skills.forEach(s => s.effects.forEach(e => activeEffects.add(e)));
+    if (f.variant) {
+      activeEffects.add("Variant");
+    }
   });
 
   // Create badges for the effect bar
@@ -127,10 +132,25 @@ function renderFoes() {
         return `<div class="skill"><div class="skill-name" title="${s.name}">${s.name}</div>${imgHTML}${effectsContainer}</div>`;
       }).join("");
 
+    const variantClass = f.variant ? " variant" : "";
+    const variantTooltip = f.variant ? ` title="Foe may have different build (area/campaign)"` : "";
+
     card.innerHTML = `
-      <h3><a href="${f.wiki}" target="_blank">${f.name}</a></h3>
-      <div class="skills">${skillsHTML}</div>
+      <div class="card-header">
+        <button class="toggle-btn" title="Toggle card">▼</button>
+        <h3><a href="${f.wiki}" target="_blank" class="foe-link${variantClass}"${variantTooltip}>${f.name}</a></h3>
+      </div>
+      <div class="card-content">
+        <div class="skills">${skillsHTML}</div>
+      </div>
     `;
+
+    // Add toggle functionality
+    const toggleBtn = card.querySelector(".toggle-btn");
+    toggleBtn.addEventListener("click", () => {
+      card.classList.toggle("minimized");
+      toggleBtn.textContent = card.classList.contains("minimized") ? "▶" : "▼";
+    });
 
     cardsContainer.appendChild(card);
   });
