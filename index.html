@@ -3,22 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <title>GW Vanquish Tool</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-  <h1>Vanquish Helper</h1>
+  <div class="container">
+
+<header class="topbar">
+  <div class="top-left">
+    <h1>Guild Wars Vanquish Tool</h1>
+    <p class="credit">Created by Shadow Sin Mg, inspired by n0xin_gw</p>
+  </div>
 
   <div class="controls">
-    <label>Campaign:
+    <label>
+      <span>Campaign</span>
       <select id="campaign"></select>
     </label>
 
-    <label>Area:
+    <label>
+      <span>Area</span>
       <select id="area"></select>
     </label>
   </div>
+</header>
 
-  <div id="results"></div>
+
+    <main id="results"></main>
+
+  </div>
 
   <script src="app.js"></script>
 </body>

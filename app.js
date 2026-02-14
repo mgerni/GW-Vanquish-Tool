@@ -46,35 +46,113 @@ function updateAreas() {
   renderFoes();
 }
 
-// Render foes for selected campaign + area
 function renderFoes() {
   const campaign = document.getElementById("campaign").value;
   const area = document.getElementById("area").value;
-
   const results = document.getElementById("results");
   results.innerHTML = "";
 
   const areaData = data.find(d => d.campaign === campaign && d.area === area);
   if (!areaData) return;
 
+  // --- Insert area title ---
+  results.insertAdjacentHTML("beforeend", `<div class="area-title">${area}</div>`);
+
+  // --- Insert effect bar ---
+  const effectBar = document.createElement("div");
+  effectBar.className = "effect-bar";
+
+  // All possible effects
+  const allEffects = [
+    "Knockdown",
+    "Monster_Skill",
+    "Resurrection",
+    "Interrupt",
+    "Slow_Cripple",
+    "Enchantment_Removal",
+    "Hex_Removal",
+    "Condition_Removal",
+    "IMS"
+  ];
+
+  // Effect colors
+  const effectColors = {
+    Knockdown: "#f8f17a",
+    Monster_Skill: "#d86c00",
+    Resurrection: "#9bc4ff",
+    Interrupt: "#ff9aff",
+    Slow_Cripple: "#969664",
+    Enchantment_Removal: "#cba3ff",
+    Hex_Removal: "#b28aff",
+    Condition_Removal: "#9966ff",
+    IMS: "#8fff8f"
+  };
+
+  // Determine which effects are present in this area
+  const activeEffects = new Set();
+  areaData.foes.forEach(f => {
+    f.skills.forEach(s => s.effects.forEach(e => activeEffects.add(e)));
+  });
+
+  // Create badges for the effect bar
+  allEffects.forEach(e => {
+    const badge = document.createElement("span");
+    badge.className = "effect-badge";
+    badge.textContent = shortEffectName(e); // optional abbreviation function
+    if (activeEffects.has(e)) {
+      badge.style.backgroundColor = effectColors[e];
+    }
+    effectBar.appendChild(badge);
+  });
+
+  results.appendChild(effectBar);
+
+  // --- Create cards container ---
+  const cardsContainer = document.createElement("div");
+  cardsContainer.className = "cards-container";
+  results.appendChild(cardsContainer);
+
+  // --- Render each foe ---
   areaData.foes.forEach(f => {
     const card = document.createElement("div");
-    card.className = "foe";
+    card.className = "foe-card";
 
-    const skillList = f.skills
+    const skillsHTML = (f.skills.length ? f.skills : [{name: "No known skills", effects: []}])
       .map(s => {
-        if (s.effects.length)
-          return `<li>${s.name} <span class="effect-badge">${s.effects.join(", ")}</span></li>`;
-        else
-          return `<li>${s.name}</li>`;
-      })
-      .join("");
+        const badgesHTML = s.effects.map(e =>
+          `<span class="skill ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
+        ).join("");
+        return `<div class="skill">${s.name}${badgesHTML}</div>`;
+      }).join("");
 
     card.innerHTML = `
       <h3><a href="${f.wiki}" target="_blank">${f.name}</a></h3>
-      <ul>${skillList}</ul>
+      <div class="skills">${skillsHTML}</div>
     `;
 
-    results.appendChild(card);
+    cardsContainer.appendChild(card);
   });
+}
+
+
+function formatEffectClass(effect) {
+  return effect.toLowerCase(); //
+}
+
+
+function shortEffectName(effect) {
+  const map = {
+    Knockdown: "Knockdown",
+    Resurrection: "Ressurection",
+    Interrupt: "Interrupt",
+    Hex_Removal: "Hex Removal",
+    Condition_Removal: "Condition Removal",
+    Enchantment_Removal: "Enchantment Removal",
+    Monster_Skill: "Monster Skill",
+    Multiple_Effects: "Multi",
+    IMS: "IMS",
+    Slow_Cripple: "Slow"
+  };
+
+  return map[effect] || effect;
 }

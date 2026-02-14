@@ -1,61 +1,290 @@
+:root {
+  --gw-bg: #0f1115;
+  --gw-panel: #1a1d24;
+  --gw-panel-2: #151821;
+  --gw-border: #2a2f3a;
+  --gw-gold: #c8a75a;
+  --gw-text: #e6e6e6;
+  --gw-muted: #9aa3ad;
+}
+
 body {
-  background: #0f1115;
-  color: #e0c36c;
-  font-family: Georgia, serif;
-  margin: 20px;
+  margin: 0;
+  background:
+    radial-gradient(circle at top, rgba(200,167,90,0.08), transparent 40%),
+    var(--gw-bg);
+  color: var(--gw-text);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+
+/* 🔝 Top bar */
+
+.topbar {
+  background: var(--gw-panel);
+  border: 1px solid var(--gw-border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
 }
 
 h1 {
+  margin: 0 0 14px 0;
+  color: var(--gw-gold);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* 🎛 Controls */
+
+/* Credit text */
+.credit {
+  font-size: 12px;
+  color: var(--gw-muted);
+  margin: 4px 0 12px 0;
+  font-style: italic;
+}
+
+
+/* 📦 Results panel */
+
+#results {
+  display: block;       /* stack children vertically */
+  text-align: center;   /* center area title and effect bar */
+}
+
+.area-title {
+  font-size: 22px;
+  color: var(--gw-gold);
+  margin: 12px 0 16px 0;
+}
+
+.effect-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center; /* center all badges */
+  margin-bottom: 12px;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center; /* center all cards */
+}
+
+
+
+/* 👹 Foe card */
+
+.foe-card {
+  background-color: var(--gw-panel-2);
+  border-radius: 8px;
+  padding: 8px 12px;        
+  width: 200px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.foe-card h3 {
+  margin: 0 0 8px 0;      
+  font-size: 15px;          
+  line-height: 1.2;
   text-align: center;
+}
+
+
+.foe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+}
+
+.foe-card h3 a {
+  color: var(--gw-gold);    
+  text-decoration: none; 
+}
+
+.foe-card h3 a:visited,
+.foe-card h3 a:hover,
+.foe-card h3 a:active,
+.foe-card h3 a:focus {
+  color: var(--gw-gold); 
+}
+
+
+.foe-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: var(--gw-gold);
+  font-size: 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--gw-border);
+  padding-bottom: 4px;
+}
+
+.foe-name {
+  text-decoration: none;
+  color: inherit;
+}
+
+
+/* 🧠 Skills */
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+
+.skill {
+  display: inline-block;
+  margin: 2px 3px 2px 0;
+  padding: 1px 4px;          /* smaller vertical padding */
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 12px;          /* keeps the badge vertically aligned */
+  font-weight: 700;
+  color: white;
+  vertical-align: middle;     /* aligns with skill text */
+}
+
+
+/* Effect colors */
+.skill.knockdown { background-color: #f8f17a; }       
+.skill.monster_skill { background-color: #d86c00; }  
+.skill.resurrection { background-color: #9bc4ff; }     
+.skill.interrupt { background-color: #ff9aff; }       
+.skill.slow_cripple { background-color: #969664; }
+.skill.enchantment_removal { background-color: #cba3ff; } 
+.skill.hex_removal { background-color: #b28aff; }        
+.skill.condition_removal { background-color: #9966ff; }   
+.skill.ims { background-color: #8fff8f; }
+
+.skill.knockdown,
+.skill.monster_skill,
+.skill.resurrection,
+.skill.slow_cripple,
+.skill.enchantment_removal,
+.skill.hex_removal,
+.skill.condition_removal,
+.skill.interrupt,
+.skill.ims {
+    font-size: 10px;   /* smaller text */
+    line-height: 12px; /* keep it vertically centered */
+    padding: 1px 3px;  /* slightly smaller padding */
+    margin-left: 2px;
+    color: black;
+}
+
+/* Small badges inside skills */
+.badge {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-left: 3px;
+}
+
+
+/* 🏷 Effect badges */
+
+.badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-left: 4px;
+}
+
+.effect-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 12px;
+  padding: 4px 0;
+  background-color: var(--gw-panel-1); /* subtle panel behind badges */
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+.effect-bar .effect-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: black;
+  background-color: rgba(85, 85, 85, 0.1); /* semi-transparent grey */
+  font-weight: 600;
+}
+
+
+.area-title {
+  font-size: 22px;
+  color: var(--gw-gold);
+  text-align: center;
+  width: 100%;         /* force it to span full width of flex container */
+  margin-bottom: 16px; /* spacing below */
+  margin-top: 12px;    /* spacing above */
+}
+
+
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gw-panel);
+  border: 1px solid var(--gw-border);
+  border-radius: 12px;
+  padding: 16px;
   margin-bottom: 20px;
+}
+
+.top-left h1 {
+  margin: 0;
+  color: var(--gw-gold);
+}
+
+.top-left .credit {
+  font-size: 12px;
+  color: var(--gw-muted);
+  margin-top: 4px;
 }
 
 .controls {
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--gw-muted);
+  gap: 2px;
 }
 
 select {
-  background: #1a1d24;
-  color: #e0c36c;
-  border: 1px solid #a88b3a;
-  padding: 6px;
-  margin: 0 10px;
-  font-size: 16px;
+  background: var(--gw-panel-2);
+  color: var(--gw-text);
+  border: 1px solid var(--gw-border);
+  padding: 6px 8px;
+  border-radius: 6px;
+  min-width: 140px;
 }
 
-.foe {
-  border: 1px solid #a88b3a;
-  padding: 10px;
-  margin: 10px 0;
-  background: #15171c;
-  border-radius: 5px;
-}
-
-.foe h3 {
-  margin: 0 0 10px 0;
-}
-
-.foe h3 a {
-  color: #f9e07f;
-  text-decoration: none;
-}
-
-.foe h3 a:hover {
-  text-decoration: underline;
-}
-
-ul {
-  list-style: disc;
-  padding-left: 20px;
-  margin: 0;
-}
-
-.effect-badge {
-  background: #8b2d2d;
-  color: #fff;
-  font-size: 0.8em;
-  padding: 2px 4px;
-  border-radius: 3px;
-  margin-left: 5px;
-}
