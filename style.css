@@ -139,74 +139,96 @@ h1 {
 }
 
 
-/* 🧠 Skills */
+/* 🧠 Skills - GW1 skill bar style */
 
 .skills {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 6px;
-  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 
+/* Skill item container - vertical stack inline */
 .skill {
-  display: inline-block;
-  margin: 2px 3px 2px 0;
-  padding: 1px 4px;          /* smaller vertical padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  margin: 0;
+  padding: 4px;
+  border-radius: 2px;
+  background-color: transparent;
+  border: none;
+  flex-shrink: 0;
+  width: auto;
+  height: auto;
+}
+
+.skill:hover {
+  background-color: var(--gw-panel);
   border-radius: 4px;
+}
+
+.skill-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border: 1px solid var(--gw-border);
+  border-radius: 2px;
+  padding: 2px;
+  background-color: var(--gw-panel-2);
+}
+
+.skill-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
   font-size: 9px;
-  line-height: 12px;          /* keeps the badge vertically aligned */
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.1;
+  white-space: nowrap;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
+}
+
+.skill-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  justify-content: center;
+  width: 50px;
+}
+
+/* Effect badges - displayed below the image */
+.effect-badge {
+  display: inline-block;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-size: 7px;
+  line-height: 8px;
   font-weight: 700;
-  color: white;
-  vertical-align: middle;     /* aligns with skill text */
+  color: black;
+  white-space: nowrap;
 }
 
-
-/* Effect colors */
-.skill.knockdown { background-color: #f8f17a; }       
-.skill.monster_skill { background-color: #d86c00; }  
-.skill.resurrection { background-color: #9bc4ff; }     
-.skill.interrupt { background-color: #ff9aff; }       
-.skill.slow_cripple { background-color: #969664; }
-.skill.enchantment_removal { background-color: #cba3ff; } 
-.skill.hex_removal { background-color: #b28aff; }        
-.skill.condition_removal { background-color: #9966ff; }   
-.skill.ims { background-color: #8fff8f; }
-
-.skill.knockdown,
-.skill.monster_skill,
-.skill.resurrection,
-.skill.slow_cripple,
-.skill.enchantment_removal,
-.skill.hex_removal,
-.skill.condition_removal,
-.skill.interrupt,
-.skill.ims {
-    font-size: 10px;   /* smaller text */
-    line-height: 12px; /* keep it vertically centered */
-    padding: 1px 3px;  /* slightly smaller padding */
-    margin-left: 2px;
-    color: black;
-}
-
-/* Small badges inside skills */
-.badge {
-  font-size: 10px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  margin-left: 3px;
-}
-
-
-/* 🏷 Effect badges */
-
-.badge {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 5px;
-  margin-left: 4px;
-}
+.effect-badge.knockdown { background-color: #f8f17a; }       
+.effect-badge.monster_skill { background-color: #d86c00; }  
+.effect-badge.resurrection { background-color: #9bc4ff; }     
+.effect-badge.interrupt { background-color: #ff9aff; }       
+.effect-badge.slow_cripple { background-color: #969664; }
+.effect-badge.enchantment_removal { background-color: #cba3ff; } 
+.effect-badge.hex_removal { background-color: #b28aff; }        
+.effect-badge.condition_removal { background-color: #9966ff; }   
+.effect-badge.ims { background-color: #8fff8f; }
 
 .effect-bar {
   display: flex;

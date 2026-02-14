@@ -120,9 +120,11 @@ function renderFoes() {
     const skillsHTML = (f.skills.length ? f.skills : [{name: "No known skills", effects: []}])
       .map(s => {
         const badgesHTML = s.effects.map(e =>
-          `<span class="skill ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
+          `<span class="effect-badge ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
         ).join("");
-        return `<div class="skill">${s.name}${badgesHTML}</div>`;
+        const imgHTML = s.wiki_link ? `<img class="skill-image" src="${s.wiki_link}" alt="${s.name}">` : "";
+        const effectsContainer = s.effects.length ? `<div class="skill-effects">${badgesHTML}</div>` : "";
+        return `<div class="skill"><div class="skill-name" title="${s.name}">${s.name}</div>${imgHTML}${effectsContainer}</div>`;
       }).join("");
 
     card.innerHTML = `
