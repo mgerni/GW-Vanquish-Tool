@@ -24,6 +24,7 @@ function initCampaigns() {
   campaignSelect.addEventListener("change", updateAreas);
 
   updateAreas();
+  initTheme();
 }
 
 // Populate area dropdown based on selected campaign
@@ -81,6 +82,13 @@ function renderFoes() {
   // Re-attach event listeners for filters
   document.getElementById("filterUnique").addEventListener("change", renderFoes);
   document.getElementById("filterElites").addEventListener("change", renderFoes);
+
+  // Re-attach theme toggle listener if it exists
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.removeEventListener("click", toggleTheme);
+    themeToggle.addEventListener("click", toggleTheme);
+  }
 
   // --- Insert effect bar ---
   const effectBar = document.createElement("div");
@@ -225,4 +233,42 @@ function shortEffectName(effect) {
   };
 
   return map[effect] || effect;
+}
+
+// Theme toggle functionality
+function toggleTheme() {
+  const body = document.body;
+  const isDark = body.classList.toggle("dark-mode");
+  const icon = document.querySelector("#themeToggle i");
+  
+  if (isDark) {
+    icon.className = "fas fa-sun";
+    localStorage.setItem("theme", "dark");
+  } else {
+    icon.className = "fas fa-moon";
+    localStorage.setItem("theme", "light");
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const themeToggle = document.getElementById("themeToggle");
+  const icon = themeToggle?.querySelector("i");
+  
+  // Use saved theme, or default to system preference, or default to dark
+  const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+  
+  if (shouldBeDark) {
+    document.body.classList.add("dark-mode");
+    if (icon) icon.className = "fas fa-sun";
+  } else {
+    document.body.classList.remove("dark-mode");
+    if (icon) icon.className = "fas fa-moon";
+  }
+  
+  // Attach event listener
+  if (themeToggle) {
+    themeToggle.addEventListener("click", toggleTheme);
+  }
 }
