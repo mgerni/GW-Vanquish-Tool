@@ -138,7 +138,7 @@ function renderFoes() {
     card.innerHTML = `
       <div class="card-header">
         <button class="toggle-btn" title="Toggle card">▼</button>
-        <h3><a href="${f.wiki}" target="_blank" class="foe-link${variantClass}"${variantTooltip}>${f.name}</a></h3>
+        <h3><a href="${f.wiki_url}" target="_blank" class="foe-link${variantClass}"${variantTooltip}>${f.name}</a></h3>
       </div>
       <div class="card-content">
         <div class="skills">${skillsHTML}</div>
