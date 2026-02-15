@@ -59,9 +59,35 @@ h1 {
 }
 
 .area-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
   font-size: 22px;
   color: var(--gw-gold);
   margin: 12px 0 16px 0;
+}
+
+.area-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.area-filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.area-filters label i {
+  font-size: 16px;
+  color: var(--gw-gold);
+}
+
+.area-filters label input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
 }
 
 .effect-bar {
@@ -375,3 +401,101 @@ select {
   min-width: 140px;
 }
 
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .top-left {
+    width: 100%;
+  }
+
+  .top-left > div {
+    gap: 8px !important;
+  }
+
+  .top-left > div a {
+    font-size: 22px !important;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .controls label {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  select {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .area-title {
+    flex-direction: column;
+    gap: 12px;
+    font-size: 18px;
+  }
+
+  .cards-container {
+    gap: 8px;
+  }
+
+  .foe-card {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+
+  .top-left > div {
+    gap: 6px !important;
+  }
+
+  .top-left > div a {
+    font-size: 18px !important;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .topbar {
+    padding: 12px;
+  }
+
+  .area-title {
+    font-size: 16px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controls label {
+    width: 100%;
+  }
+
+  .area-filters {
+    gap: 8px;
+  }
+
+  .area-filters label i {
+    font-size: 14px;
+  }
+}

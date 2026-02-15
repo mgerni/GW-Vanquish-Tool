@@ -43,12 +43,6 @@ function updateAreas() {
 
   areaSelect.addEventListener("change", renderFoes);
 
-  // Add filter checkbox listeners
-  const filterCheckbox = document.getElementById("filterUnique");
-  filterCheckbox.addEventListener("change", renderFoes);
-  const filterElitesCheckbox = document.getElementById("filterElites");
-  filterElitesCheckbox.addEventListener("change", renderFoes);
-
   renderFoes();
 }
 
@@ -56,13 +50,37 @@ function renderFoes() {
   const campaign = document.getElementById("campaign").value;
   const area = document.getElementById("area").value;
   const results = document.getElementById("results");
+  
+  // Save filter states before clearing
+  const filterUniqueChecked = document.getElementById("filterUnique")?.checked || false;
+  const filterElitesChecked = document.getElementById("filterElites")?.checked || false;
+  
   results.innerHTML = "";
 
   const areaData = data.find(d => d.campaign === campaign && d.area === area);
   if (!areaData) return;
 
-  // --- Insert area title ---
-  results.insertAdjacentHTML("beforeend", `<div class="area-title">${area}</div>`);
+  // --- Insert area title with filters ---
+  const titleContainer = document.createElement("div");
+  titleContainer.className = "area-title";
+  titleContainer.innerHTML = `
+    <span>${area}</span>
+    <span class="area-filters">
+      <label title="Show only skills with effects">
+        <input type="checkbox" id="filterUnique" ${filterUniqueChecked ? 'checked' : ''}>
+        <i class="fas fa-filter"></i>
+      </label>
+      <label title="Hide elite skills without effects">
+        <input type="checkbox" id="filterElites" ${filterElitesChecked ? 'checked' : ''}>
+        <i class="fas fa-star"></i>
+      </label>
+    </span>
+  `;
+  results.appendChild(titleContainer);
+
+  // Re-attach event listeners for filters
+  document.getElementById("filterUnique").addEventListener("change", renderFoes);
+  document.getElementById("filterElites").addEventListener("change", renderFoes);
 
   // --- Insert effect bar ---
   const effectBar = document.createElement("div");
