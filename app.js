@@ -148,7 +148,9 @@ function renderFoes() {
   const filterUnique = document.getElementById("filterUnique").checked;
   const filterElites = document.getElementById("filterElites").checked;
 
-  // --- Render each foe ---
+  // --- Render each foe and collect cards ---
+  const cardsList = [];
+  
   areaData.foes.forEach(f => {
     const card = document.createElement("div");
     card.className = "foe-card";
@@ -170,6 +172,12 @@ function renderFoes() {
       });
     }
 
+    // Automatically minimize card if no skills remain after filtering
+    const shouldMinimize = skillsToShow.length === 0;
+    if (shouldMinimize) {
+      card.classList.add("minimized");
+    }
+
     const skillsHTML = (skillsToShow.length ? skillsToShow : [{name: "No skills with effects", effects: []}])
       .map(s => {
         const badgesHTML = s.effects.map(e =>
@@ -185,7 +193,7 @@ function renderFoes() {
 
     card.innerHTML = `
       <div class="card-header">
-        <button class="toggle-btn" title="Toggle card">▼</button>
+        <button class="toggle-btn" title="Toggle card">${shouldMinimize ? "▶" : "▼"}</button>
         <h3><a href="${f.wiki_url}" target="_blank" class="foe-link${variantClass}"${variantTooltip}>${f.name}</a></h3>
       </div>
       <div class="card-content">
@@ -200,7 +208,19 @@ function renderFoes() {
       toggleBtn.textContent = card.classList.contains("minimized") ? "▶" : "▼";
     });
 
-    cardsContainer.appendChild(card);
+    // Store card with its minimized status for sorting
+    cardsList.push({ card, minimized: shouldMinimize });
+  });
+
+  // Sort cards: non-minimized first, minimized last
+  cardsList.sort((a, b) => {
+    if (a.minimized === b.minimized) return 0;
+    return a.minimized ? 1 : -1;
+  });
+
+  // Append all cards in sorted order
+  cardsList.forEach(item => {
+    cardsContainer.appendChild(item.card);
   });
 }
 
