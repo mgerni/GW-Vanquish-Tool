@@ -43,6 +43,12 @@ function updateAreas() {
 
   areaSelect.addEventListener("change", renderFoes);
 
+  // Add filter checkbox listeners
+  const filterCheckbox = document.getElementById("filterUnique");
+  filterCheckbox.addEventListener("change", renderFoes);
+  const filterElitesCheckbox = document.getElementById("filterElites");
+  filterElitesCheckbox.addEventListener("change", renderFoes);
+
   renderFoes();
 }
 
@@ -73,6 +79,7 @@ function renderFoes() {
     "Hex_Removal",
     "Condition_Removal",
     "IMS",
+    "Elite",
     "Variant"
   ];
 
@@ -87,6 +94,7 @@ function renderFoes() {
     Hex_Removal: "#b28aff",
     Condition_Removal: "#9966ff",
     IMS: "#8fff8f",
+    Elite: "#fedd02",
     Variant: "#ff6666"
   };
 
@@ -117,12 +125,33 @@ function renderFoes() {
   cardsContainer.className = "cards-container";
   results.appendChild(cardsContainer);
 
+  // --- Determine if filtering for unique effects ---
+  const filterUnique = document.getElementById("filterUnique").checked;
+  const filterElites = document.getElementById("filterElites").checked;
+
   // --- Render each foe ---
   areaData.foes.forEach(f => {
     const card = document.createElement("div");
     card.className = "foe-card";
 
-    const skillsHTML = (f.skills.length ? f.skills : [{name: "No known skills", effects: []}])
+    // Filter skills based on active filters
+    let skillsToShow = f.skills;
+    
+    if (filterUnique && f.skills.length) {
+      // Show only skills that have at least one effect (non-empty effects array)
+      skillsToShow = skillsToShow.filter(s => s.effects && s.effects.length > 0);
+    }
+    
+    if (filterElites && f.skills.length) {
+      // Hide skills where "Elite" is the only effect
+      skillsToShow = skillsToShow.filter(s => {
+        if (!s.effects || s.effects.length === 0) return true;
+        if (s.effects.length === 1 && s.effects[0] === "Elite") return false;
+        return true;
+      });
+    }
+
+    const skillsHTML = (skillsToShow.length ? skillsToShow : [{name: "No skills with effects", effects: []}])
       .map(s => {
         const badgesHTML = s.effects.map(e =>
           `<span class="effect-badge ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
@@ -164,16 +193,17 @@ function formatEffectClass(effect) {
 
 function shortEffectName(effect) {
   const map = {
-    Knockdown: "Knockdown",
-    Resurrection: "Ressurection",
+    Knockdown: "KD",
+    Resurrection: "Rez",
     Interrupt: "Interrupt",
     Hex_Removal: "Hex Removal",
     Condition_Removal: "Condition Removal",
-    Enchantment_Removal: "Enchantment Removal",
+    Enchantment_Removal: "Enchantment Strip",
     Monster_Skill: "Monster Skill",
     Multiple_Effects: "Multi",
     IMS: "IMS",
-    Slow_Cripple: "Slow"
+    Slow_Cripple: "Slow",
+    Elite: "Elite"
   };
 
   return map[effect] || effect;

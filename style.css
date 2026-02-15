@@ -276,6 +276,7 @@ h1 {
 .effect-badge.hex_removal { background-color: #b28aff; }        
 .effect-badge.condition_removal { background-color: #9966ff; }   
 .effect-badge.ims { background-color: #8fff8f; }
+.effect-badge.elite { background-color: #fedd02; }
 
 .effect-bar {
   display: flex;
