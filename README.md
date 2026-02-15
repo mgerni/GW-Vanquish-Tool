@@ -1,6 +1,6 @@
 # Guild Wars Vanquish Tool
 
-**Check it out live:** [GitHub Pages Site](https://<your-username>.github.io/<repo-name>/)
+**Check it out live:** [GitHub Pages Site](https://mgerni.github.io/GW-Vanquish-Tool/))
 
 This is a web tool for tracking **foes and their skills** in Guild Wars, inspired by the original vanquish tool created by [n0xin_gw](https://www.reddit.com/r/GuildWars/comments/1r3umcd/comment/o5b0i5u/?context=1).  
 
