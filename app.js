@@ -285,4 +285,29 @@ function initTheme() {
   
   // Attach event listener
   themeToggle.addEventListener("click", toggleTheme);
+  
+  // Initialize cookie consent
+  initCookieConsent();
+}
+
+// Cookie consent functionality
+function initCookieConsent() {
+  const cookieBanner = document.getElementById("cookieConsent");
+  const acceptBtn = document.getElementById("cookieAccept");
+  const hasAccepted = localStorage.getItem("cookieConsent");
+  
+  // Show banner if user hasn't accepted yet
+  if (!hasAccepted && cookieBanner) {
+    cookieBanner.style.display = "block";
+  }
+  
+  // Handle accept button click
+  if (acceptBtn) {
+    acceptBtn.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "accepted");
+      if (cookieBanner) {
+        cookieBanner.style.display = "none";
+      }
+    });
+  }
 }
