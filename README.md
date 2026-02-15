@@ -17,7 +17,7 @@ The site allows you to:
 
 This project is an attempt to **emulate the functionality of the original tool**, while providing an organized, modern interface.  
 
-We are **open to feedback** or suggestions for changes the community would like to see.  
+I am **open to feedback** or suggestions for changes the community would like to see.  
 
 ---
 
