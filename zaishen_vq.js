@@ -20,28 +20,30 @@ function getDateForZaishen() {
 }
 
 /**
- * Fetch today's Zaishen Vanquish from the wiki cycles table
+ * Fetch today's Zaishen Vanquish from the wiki cycles table via MediaWiki API
  * Returns the quest name (area) for today, or null if not found
  */
 async function getTodaysZaishenVanquish() {
   try {
-    const url = 'https://wiki.guildwars.com/wiki/Zaishen_Vanquish/cycles';
     const todayDate = getDateForZaishen();
     
-    console.log(`[Zaishen] Fetching cycles for ${todayDate}...`);
+    // Use MediaWiki API to fetch page content
+    const apiUrl = 'https://wiki.guildwars.com/api.php';
+    const params = new URLSearchParams({
+      action: 'query',
+      titles: 'Zaishen_Vanquish/cycles',
+      prop: 'revisions',  // Get revisions to access page content
+      rvprop: 'content',  // Get the actual content
+      format: 'json',
+      origin: '*'  // Enable CORS
+    });
     
-    const response = await fetch(url, {
+    const response = await fetch(`${apiUrl}?${params}`, {
       method: 'GET',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-      credentials: 'omit',
-      cache: 'no-cache'
+        'Accept': 'application/json'
+      }
     });
     
     if (!response.ok) {
@@ -49,43 +51,69 @@ async function getTodaysZaishenVanquish() {
       return null;
     }
     
-    const html = await response.text();
+    const data = await response.json();
     
-    // Parse HTML to find the cycles table
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    // Find all tables
-    const tables = doc.querySelectorAll('table.wikitable');
-    if (tables.length === 0) {
-      console.error('[Zaishen] No wikitable found');
+    // Extract page content from API response
+    const pages = data.query?.pages;
+    if (!pages) {
+      console.error('[Zaishen] Invalid API response - no pages found');
       return null;
     }
     
-    // Parse the first table
-    const table = tables[0];
-    const rows = table.querySelectorAll('tr');
+    const pageId = Object.keys(pages)[0];
+    const revisions = pages[pageId].revisions;
+    
+    if (!revisions || revisions.length === 0) {
+      console.error('[Zaishen] No revisions found');
+      return null;
+    }
+    
+    const pageContent = revisions[0]['*'];  // The '*' key contains the page content
+    
+    if (!pageContent) {
+      console.error('[Zaishen] No page content found');
+      return null;
+    }
+    
+    // Parse the wikitext - look for table rows with multiple dates
+    const lines = pageContent.split('\n');
     
     let questName = null;
     
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length >= 2) {
-        const dateText = cells[0].textContent.trim();
-        const areaText = cells[1].textContent.trim();
-        
-        // Match today's date
-        if (dateText === todayDate && areaText && areaText !== 'Area') {
-          questName = areaText;
+    // In wiki markup, tables have format:
+    // | AreaName1 || AreaName2
+    // | date1 || date2 || date3 || ... || 26-02-16 || ...
+    // Look for the line containing our date, then get area name from previous line
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Check if this line contains the date we're looking for
+      if (line.includes(todayDate) && line.includes('||')) {
+        // The area name is likely on the previous line
+        if (i > 0) {
+          const prevLine = lines[i - 1].trim();
+          
+          // Extract area name from previous line
+          let areaName = prevLine;
+          
+          // Remove leading | if present
+          areaName = areaName.replace(/^\|+/, '').trim();
+          // Remove wiki links [[Link|Display]] -> Display or [[Link]] -> Link
+          areaName = areaName.replace(/\[\[([^\]]*\|)?([^\]]*)\]\]/g, '$2');
+          // Remove any remaining brackets or pipes
+          areaName = areaName.replace(/[\[\]\|]/g, '').trim();
+          
+          if (areaName && !areaName.includes('||')) {
+            questName = areaName;
+            break;
+          }
         }
       }
-    });
+    }
     
     if (questName) {
-      console.log(`[Zaishen] ✓ Today's Vanquish: ${questName}`);
       return questName;
     } else {
-      console.log(`[Zaishen] No vanquish found for ${todayDate}`);
       return null;
     }
     
@@ -100,8 +128,10 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { getTodaysZaishenVanquish, getDateForZaishen };
 }
 
-// Run after DOM is loaded
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('[Zaishen] DOM loaded, fetching today\'s vanquish...');
-  await getTodaysZaishenVanquish();
-});
+// Start fetching immediately (don't wait for DOMContentLoaded)
+(async () => {
+  const questName = await getTodaysZaishenVanquish();
+  if (questName) {
+    window.todaysZaishenArea = questName;
+  }
+})();

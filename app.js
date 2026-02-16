@@ -9,6 +9,39 @@ fetch("data.json")
   })
   .catch(err => console.error("Failed to load data.json:", err));
 
+// Function to apply Zaishen area selection
+function applyZaishenArea() {
+  if (!window.todaysZaishenArea || data.length === 0) {
+    return false;
+  }
+  
+  // Find the campaign that contains this area
+  const areaData = data.find(d => d.area === window.todaysZaishenArea);
+  if (areaData) {
+    const campaignSelect = document.getElementById("campaign");
+    campaignSelect.value = areaData.campaign;
+    updateAreas();
+    return true;
+  }
+  return false;
+}
+
+// After DOM is loaded, try to apply Zaishen area (with polling)
+document.addEventListener('DOMContentLoaded', () => {
+  // Try immediately
+  if (applyZaishenArea()) return;
+  
+  // If not available yet, poll for it (max 5 seconds with 200ms intervals)
+  let attempts = 0;
+  const maxAttempts = 25;
+  const pollInterval = setInterval(() => {
+    attempts++;
+    if (applyZaishenArea() || attempts >= maxAttempts) {
+      clearInterval(pollInterval);
+    }
+  }, 200);
+});
+
 // Initialize campaign dropdown
 function initCampaigns() {
   const campaigns = [...new Set(data.map(d => d.campaign))];
@@ -41,6 +74,11 @@ function updateAreas() {
     option.textContent = a;
     areaSelect.appendChild(option);
   });
+
+  // If Zaishen area is available and in current campaign, select it
+  if (window.todaysZaishenArea && areas.includes(window.todaysZaishenArea)) {
+    areaSelect.value = window.todaysZaishenArea;
+  }
 
   areaSelect.addEventListener("change", renderFoes);
 
