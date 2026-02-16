@@ -98,6 +98,24 @@ h1 {
   margin: 12px 0 16px 0;
 }
 
+.foe-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  color: var(--gw-text);
+  background-color: var(--gw-panel-2);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.hm-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .area-filters {
   display: flex;
   gap: 12px;

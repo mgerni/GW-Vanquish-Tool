@@ -102,8 +102,26 @@ function renderFoes() {
   // --- Insert area title with filters ---
   const titleContainer = document.createElement("div");
   titleContainer.className = "area-title";
+  
+  // Build foe count display if available
+  let foeCountHTML = '';
+  if (areaData.average_foes) {
+    // Build tooltip with avg/min/max if available
+    let tooltipParts = [`Average: ${areaData.average_foes}`];
+    if (areaData.min_kills) {
+      tooltipParts.push(`Min: ${areaData.min_kills}`);
+    }
+    if (areaData.max_kills) {
+      tooltipParts.push(`Max: ${areaData.max_kills}`);
+    }
+    const tooltip = tooltipParts.join(' | ');
+    
+    foeCountHTML = `<span class="foe-count" title="${tooltip}"><img src="https://wiki.guildwars.com/images/e/e4/Vanquish_icon_HardMode_None.png" alt="HM" class="hm-icon">${areaData.average_foes}</span>`;
+  }
+  
   titleContainer.innerHTML = `
     <span>${area}</span>
+    ${foeCountHTML}
     <span class="area-filters">
       <label title="Show only skills with effects">
         <input type="checkbox" id="filterUnique" ${filterUniqueChecked ? 'checked' : ''}>
