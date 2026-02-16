@@ -12972,10 +12972,7 @@
           {
             "name": "Illusion of Haste",
             "effects": [
-              "Multiple_Effects",
-              "IMS",
-              "Enchantment_Removal",
-              "Condition_Removal"
+              "IMS"
             ],
             "wiki_link": "https://wiki.guildwars.com/images/9/91/Illusion_of_Haste.png",
             "link_ok": true,
