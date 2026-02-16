@@ -1,5 +1,180 @@
 let data = [];
 
+// ===== Zaishen Vanquish Auto-selector =====
+
+/**
+ * Get today's quest date in YY-MM-DD format.
+ * Quests change at 16:00 UTC daily.
+ * Before 16:00 UTC: returns yesterday's date
+ * After 16:00 UTC: returns today's date
+ */
+function getQuestDateYYMMDD() {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const questChangeHour = 16;
+  
+  // If before 16:00 UTC, the previous day's quest is active
+  let questDate = new Date(now);
+  if (utcHours < questChangeHour) {
+    questDate.setUTCDate(questDate.getUTCDate() - 1);
+  }
+  
+  // Format as YY-MM-DD
+  const yy = String(questDate.getUTCFullYear()).slice(-2);
+  const mm = String(questDate.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(questDate.getUTCDate()).padStart(2, '0');
+  
+  return `${yy}-${mm}-${dd}`;
+}
+
+/**
+ * Fetch and parse the Zaishen Vanquish cycles table from the wiki.
+ * Returns a map of date → area name.
+ * Note: This requires a CORS proxy and may not work on localhost due to browser restrictions.
+ */
+async function fetchZaishenVanquish() {
+  try {
+    const wikiUrl = "https://wiki.guildwars.com/wiki/Zaishen_Vanquish/cycles";
+    
+    // Try multiple CORS proxies in order
+    const proxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(wikiUrl)}`,
+      `https://cors-anywhere.herokuapp.com/${wikiUrl}`,
+    ];
+    
+    let html = null;
+    
+    for (const proxyUrl of proxies) {
+      try {
+        console.log(`[Zaishen] Trying proxy: ${proxyUrl.split('/')[2]}`);
+        const response = await Promise.race([
+          fetch(proxyUrl, { method: 'GET', cache: 'no-cache' }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
+        ]);
+        
+        if (response.ok) {
+          html = await response.text();
+          console.log("[Zaishen] ✓ Proxy successful");
+          break;
+        }
+      } catch (err) {
+        console.log(`[Zaishen] Proxy failed: ${err.message}`);
+        continue;
+      }
+    }
+    
+    if (!html) {
+      console.log("[Zaishen] ℹ Cannot fetch wiki (CORS restrictions on localhost). Manual selection available.");
+      return null;
+    }
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Find all wikitable tables
+    const tables = doc.querySelectorAll('table.wikitable');
+    if (tables.length === 0) {
+      console.error("[Zaishen] No wikitable found");
+      return null;
+    }
+    
+    // Parse the first table (usually contains the cycles)
+    const table = tables[0];
+    const rows = table.querySelectorAll('tr');
+    const vanquishMap = {};
+    
+    console.log(`[Zaishen] Parsing ${rows.length} rows...`);
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length >= 2) {
+        const dateText = cells[0].textContent.trim();
+        const areaText = cells[1].textContent.trim();
+        
+        // Check if date matches YY-MM-DD format
+        if (dateText.match(/^\d{2}-\d{2}-\d{2}$/) && areaText && areaText !== "Area") {
+          vanquishMap[dateText] = areaText;
+        }
+      }
+    });
+    
+    if (Object.keys(vanquishMap).length > 0) {
+      console.log(`[Zaishen] Extracted ${Object.keys(vanquishMap).length} entries`);
+      return vanquishMap;
+    } else {
+      console.warn("[Zaishen] Could not parse vanquish data from table");
+      return null;
+    }
+    
+  } catch (err) {
+    console.log(`[Zaishen] Fetch skipped (network/CORS restrictions)`);
+    return null;
+  }
+}
+
+/**
+ * Auto-select today's Zaishen Vanquish in the campaign/area dropdowns.
+ * Finds the area from the cycles table and auto-selects it.
+ * Gracefully handles network/CORS failures (e.g., on localhost).
+ */
+async function autoSelectZaishenVanquish() {
+  try {
+    // Get today's quest date
+    const questDate = getQuestDateYYMMDD();
+    console.log(`[Zaishen] Today's quest date: ${questDate}`);
+    
+    // Fetch the vanquish cycles (may fail on localhost due to CORS)
+    const vanquishMap = await fetchZaishenVanquish();
+    if (!vanquishMap) {
+      // Fail silently - this is expected on localhost
+      return;
+    }
+    
+    // Look up today's area
+    const todayArea = vanquishMap[questDate];
+    if (!todayArea) {
+      console.log(`[Zaishen] No vanquish found for date ${questDate}`);
+      return;
+    }
+    
+    console.log(`[Zaishen] Today's vanquish: ${todayArea}`);
+    
+    // Find the campaign that contains this area
+    const areaData = data.find(d => d.area === todayArea);
+    if (!areaData) {
+      console.log(`[Zaishen] Area "${todayArea}" not found in data`);
+      return;
+    }
+    
+    const campaign = areaData.campaign;
+    console.log(`[Zaishen] Campaign: ${campaign}`);
+    
+    // Set campaign dropdown
+    const campaignSelect = document.getElementById("campaign");
+    campaignSelect.value = campaign;
+    
+    // Trigger updateAreas to populate area dropdown
+    updateAreas();
+    
+    // Small delay to ensure area dropdown is populated
+    setTimeout(() => {
+      const areaSelect = document.getElementById("area");
+      areaSelect.value = todayArea;
+      
+      // Trigger renderFoes to show the vanquish
+      renderFoes();
+      
+      console.log(`[Zaishen] ✓ Auto-selected: ${campaign} > ${todayArea}`);
+    }, 100);
+    
+  } catch (err) {
+    // Fail silently on any unexpected error
+    console.log("[Zaishen] Auto-select skipped");
+  }
+}
+
+// ===== End Zaishen Auto-selector =====
+
 // Load JSON data
 fetch("data.json")
   .then(res => res.json())
@@ -25,6 +200,9 @@ function initCampaigns() {
 
   updateAreas();
   initTheme();
+  
+  // Try to auto-select today's Zaishen Vanquish
+  autoSelectZaishenVanquish();
 }
 
 // Populate area dropdown based on selected campaign
