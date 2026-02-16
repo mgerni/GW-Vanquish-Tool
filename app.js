@@ -221,7 +221,7 @@ function renderFoes() {
         const badgesHTML = s.effects.map(e =>
           `<span class="effect-badge ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
         ).join("");
-        const imgHTML = s.wiki_link ? `<img class="skill-image" src="${s.wiki_link}" alt="${s.name}">` : "";
+        const imgHTML = s.wiki_link ? (s.skill_page_url ? `<a href="${s.skill_page_url}" target="_blank"><img class="skill-image" src="${s.wiki_link}" alt="${s.name}"></a>` : `<img class="skill-image" src="${s.wiki_link}" alt="${s.name}">`) : "";
         const effectsContainer = s.effects.length ? `<div class="skill-effects">${badgesHTML}</div>` : "";
         return `<div class="skill"><div class="skill-name" title="${s.name}">${s.name}</div>${imgHTML}${effectsContainer}</div>`;
       }).join("");
