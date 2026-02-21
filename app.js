@@ -99,15 +99,13 @@ function renderFoes() {
   const areaData = data.find(d => d.campaign === campaign && d.area === area);
   if (!areaData) return;
 
-  // --- Insert area title with filters ---
-  const titleContainer = document.createElement("div");
-  titleContainer.className = "area-title";
-  
-  // Build foe count display if available
+  // --- Insert mission-style header with filters ---
+  const header = document.createElement("div");
+  header.className = "mission-header";
+
   let foeCountHTML = '';
   if (areaData.average_foes) {
-    // Build tooltip with avg/min/max if available
-    let tooltipParts = [`Average: ${areaData.average_foes}`];
+    const tooltipParts = [`Average: ${areaData.average_foes}`];
     if (areaData.min_kills) {
       tooltipParts.push(`Min: ${areaData.min_kills}`);
     }
@@ -115,14 +113,15 @@ function renderFoes() {
       tooltipParts.push(`Max: ${areaData.max_kills}`);
     }
     const tooltip = tooltipParts.join(' | ');
-    
-    foeCountHTML = `<span class="foe-count" title="${tooltip}"><img src="https://wiki.guildwars.com/images/e/e4/Vanquish_icon_HardMode_None.png" alt="HM" class="hm-icon">${areaData.average_foes}</span>`;
+    foeCountHTML = `<p class="mission-meta"><strong>Average Foes:</strong> <span title="${tooltip}">${areaData.average_foes}</span></p>`;
   }
-  
-  titleContainer.innerHTML = `
-    <span>${area}</span>
-    ${foeCountHTML}
-    <span class="area-filters">
+
+  header.innerHTML = `
+    <div class="mission-header-main">
+      <h2>${area}</h2>
+      ${foeCountHTML}
+    </div>
+    <div class="mode-filters">
       <label title="Show only skills with effects">
         <input type="checkbox" id="filterUnique" ${filterUniqueChecked ? 'checked' : ''}>
         <i class="fas fa-filter"></i>
@@ -131,9 +130,9 @@ function renderFoes() {
         <input type="checkbox" id="filterElites" ${filterElitesChecked ? 'checked' : ''}>
         <i class="fas fa-star"></i>
       </label>
-    </span>
+    </div>
   `;
-  results.appendChild(titleContainer);
+  results.appendChild(header);
 
   // Re-attach event listeners for filters
   document.getElementById("filterUnique").addEventListener("change", renderFoes);
@@ -176,7 +175,7 @@ function renderFoes() {
   // Determine which effects are present in this area
   const activeEffects = new Set();
   areaData.foes.forEach(f => {
-    f.skills.forEach(s => s.effects.forEach(e => activeEffects.add(e)));
+    f.skills.forEach(s => s.effects.forEach(e => activeEffects.add(normalizeEffectName(e))));
     if (f.variant) {
       activeEffects.add("Variant");
     }
@@ -197,92 +196,132 @@ function renderFoes() {
 
   // --- Create cards container ---
   const cardsContainer = document.createElement("div");
-  cardsContainer.className = "cards-container";
+  cardsContainer.className = "foes-grid";
   results.appendChild(cardsContainer);
 
   // --- Determine if filtering for unique effects ---
   const filterUnique = document.getElementById("filterUnique").checked;
   const filterElites = document.getElementById("filterElites").checked;
 
-  // --- Render each foe and collect cards ---
-  const cardsList = [];
-  
+  // --- Render each foe using mission-style cards ---
   areaData.foes.forEach(f => {
+    const skillsToShow = getFilteredSkills(f, filterUnique, filterElites);
+    if (skillsToShow.length === 0) return;
+
     const card = document.createElement("div");
     card.className = "foe-card";
+    card.innerHTML = createFoeCard(f, skillsToShow);
+    cardsContainer.appendChild(card);
+  });
+}
 
-    // Filter skills based on active filters
-    let skillsToShow = f.skills;
-    
-    if (filterUnique && f.skills.length) {
-      // Show only skills that have at least one effect (non-empty effects array)
-      skillsToShow = skillsToShow.filter(s => s.effects && s.effects.length > 0);
-    }
-    
-    if (filterElites && f.skills.length) {
-      // Hide skills where "Elite" is the only effect
-      skillsToShow = skillsToShow.filter(s => {
-        if (!s.effects || s.effects.length === 0) return true;
-        if (s.effects.length === 1 && s.effects[0] === "Elite") return false;
-        return true;
-      });
-    }
+function getFilteredSkills(foe, filterUnique, filterElites) {
+  let skills = foe.skills || [];
 
-    // Automatically minimize card if no skills remain after filtering
-    const shouldMinimize = skillsToShow.length === 0;
-    if (shouldMinimize) {
-      card.classList.add("minimized");
-    }
+  if (filterUnique && skills.length) {
+    skills = skills.filter(s => s.effects && s.effects.length > 0);
+  }
 
-    const skillsHTML = (skillsToShow.length ? skillsToShow : [{name: "No skills with effects", effects: []}])
-      .map(s => {
-        const badgesHTML = s.effects.map(e =>
-          `<span class="effect-badge ${formatEffectClass(e)}">${shortEffectName(e)}</span>`
-        ).join("");
-        const imgHTML = s.wiki_link ? (s.skill_page_url ? `<a href="${s.skill_page_url}" target="_blank"><img class="skill-image" src="${s.wiki_link}" alt="${s.name}"></a>` : `<img class="skill-image" src="${s.wiki_link}" alt="${s.name}">`) : "";
-        const effectsContainer = s.effects.length ? `<div class="skill-effects">${badgesHTML}</div>` : "";
-        return `<div class="skill"><div class="skill-name" title="${s.name}">${s.name}</div>${imgHTML}${effectsContainer}</div>`;
-      }).join("");
-
-    const variantClass = f.variant ? " variant" : "";
-    const variantTooltip = f.variant ? ` title="Foe may have different build (area/campaign)"` : "";
-
-    card.innerHTML = `
-      <div class="card-header">
-        <button class="toggle-btn" title="Toggle card">${shouldMinimize ? "▶" : "▼"}</button>
-        <h3><a href="${f.wiki_url}" target="_blank" class="foe-link${variantClass}"${variantTooltip}>${f.name}</a></h3>
-      </div>
-      <div class="card-content">
-        <div class="skills">${skillsHTML}</div>
-      </div>
-    `;
-
-    // Add toggle functionality
-    const toggleBtn = card.querySelector(".toggle-btn");
-    toggleBtn.addEventListener("click", () => {
-      card.classList.toggle("minimized");
-      toggleBtn.textContent = card.classList.contains("minimized") ? "▶" : "▼";
+  if (filterElites && skills.length) {
+    skills = skills.filter(s => {
+      if (!s.effects || s.effects.length === 0) return true;
+      if (s.effects.length === 1 && s.effects[0] === "Elite") return false;
+      return true;
     });
+  }
 
-    // Store card with its minimized status for sorting
-    cardsList.push({ card, minimized: shouldMinimize });
-  });
+  return skills;
+}
 
-  // Sort cards: non-minimized first, minimized last
-  cardsList.sort((a, b) => {
-    if (a.minimized === b.minimized) return 0;
-    return a.minimized ? 1 : -1;
-  });
+function createFoeCard(foe, skills) {
+  const profIcon = foe.profession_icon || "https://wiki.guildwars.com/images/e/e0/Cross_grey_20.png";
+  const profAlt = foe.profession || "Unknown";
 
-  // Append all cards in sorted order
-  cardsList.forEach(item => {
-    cardsContainer.appendChild(item.card);
-  });
+  const skillsSection = skills.length > 0
+    ? `
+      <div class="skill-variants">
+        <ul class="skill-list">
+          ${skills.map(skill => createSkillItem(skill)).join('')}
+        </ul>
+      </div>
+    `
+    : '<p class="text-muted">No skills</p>';
+
+  return `
+    <div class="foe-header">
+      <div class="foe-title">
+        <img src="${profIcon}" alt="${profAlt}" class="prof-icon">
+        <a href="${foe.wiki_url}" target="_blank" rel="noopener noreferrer" class="foe-name-link">
+          <h3>${foe.name}</h3>
+        </a>
+      </div>
+    </div>
+    <div class="foe-content">
+      <div class="skills-section">
+        <h4>Skills</h4>
+        ${skillsSection}
+      </div>
+    </div>
+  `;
+}
+
+function createSkillItem(skill) {
+  const effects = skill.effects || [];
+  const effectBadges = effects.length
+    ? `<div class="skill-effects">${effects.map(effect => {
+        const normalizedEffect = normalizeEffectName(effect);
+        return `<span class="effect-badge ${formatEffectClass(normalizedEffect)}">${shortEffectName(normalizedEffect)}</span>`;
+      }).join('')}</div>`
+    : '';
+  const iconUrl = skill.wiki_link || skill.icon;
+  const skillWikiUrl = skill.skill_page_url || '#';
+  const skillIcon = iconUrl
+    ? `<a href="${skillWikiUrl}" target="_blank" rel="noopener noreferrer"><img src="${iconUrl}" alt="${skill.name}" class="skill-icon" title="${skill.name}"></a>`
+    : '';
+
+  return `
+    <li class="skill-item">
+      ${skillIcon}
+      <span class="skill-name">${skill.name}</span>
+      ${effectBadges}
+    </li>
+  `;
 }
 
 
 function formatEffectClass(effect) {
-  return effect.toLowerCase(); //
+  return (effect || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function normalizeEffectName(effect) {
+  const value = (effect || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  const canonicalMap = {
+    monster_skill: "Monster_Skill",
+    knockdown: "Knockdown",
+    resurrection: "Resurrection",
+    interrupt: "Interrupt",
+    slow_cripple: "Slow_Cripple",
+    enchantment_removal: "Enchantment_Removal",
+    hex_removal: "Hex_Removal",
+    condition_removal: "Condition_Removal",
+    ims: "IMS",
+    elite: "Elite",
+    variant: "Variant",
+    multiple_effects: "Multiple_Effects"
+  };
+
+  return canonicalMap[value] || effect;
 }
 
 

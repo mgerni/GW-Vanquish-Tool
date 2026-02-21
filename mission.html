@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GW Missions Tool</title>
+  <link rel="icon" type="image/x-icon" href="https://wiki.guildwars.com/favicon.ico">
+
+  <link rel="stylesheet" href="shared-styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="top-left">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h1>Guild Wars Missions Tool</h1>
+          <a href="https://github.com/mgerni/GW-Vanquish-Tool" target="_blank" rel="noopener noreferrer" title="GitHub Repository" style="font-size: 28px; color: var(--github-icon-color); text-decoration: none;">
+            <i class="fab fa-github"></i>
+          </a>
+          <button id="themeToggle" class="theme-toggle" title="Toggle dark/light mode">
+            <i class="fas fa-moon"></i>
+          </button>
+          <a href="index.html" class="tool-swap" title="Switch to Vanquish Tool" aria-label="Switch to Vanquish Tool">
+            <i class="fas fa-right-left"></i>
+          </a>
+        </div>
+        <p class="credit">Created by Shadow Sin Mg, inspired by n0xin_gw</p>
+      </div>
+      <div class="controls">
+        <label>
+          <span>Campaign</span>
+          <select id="campaignSelect"></select>
+        </label>
+
+        <label>
+          <span>Mission</span>
+          <select id="missionSelect"></select>
+        </label>
+      </div>
+    </header>
+
+    <div class="missions-layout">
+      <main class="main-content">
+        <div id="missionInfo" class="mission-header" style="display: none;">
+          <div class="mission-header-main">
+            <h2 id="missionTitle"></h2>
+            <p class="mission-meta"><strong>Total Foes:</strong> <span id="foeCount">0</span></p>
+          </div>
+          <div class="mode-filters">
+            <button id="modeToggle" class="mode-toggle-btn" title="Toggle between Normal and Hard mode">
+              <img id="modeIcon" src="https://wiki.guildwars.com/images/b/bc/MissionIconIncomplete.png" alt="Mode">
+            </button>
+            <span id="modeLabel">Normal Mode</span>
+            <label title="Show only skills with effects">
+              <input type="checkbox" id="filterUnique">
+              <i class="fas fa-filter"></i>
+            </label>
+            <label title="Hide elite skills without effects">
+              <input type="checkbox" id="filterElites">
+              <i class="fas fa-star"></i>
+            </label>
+          </div>
+        </div>
+
+        <div id="noMissionMsg" class="info-box">
+          <i class="fas fa-arrow-left"></i> Select a mission from the sidebar to view foes
+        </div>
+
+        <div id="foesContainer" class="foes-grid"></div>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; 2026 Guild Wars Missions Tool. Created by Shadow Sin Mg, inspired by n0xin_gw.</p>
+      <p class="attribution">All Guild Wars images, skill icons, and game content are property of <a href="https://www.arena.net/" target="_blank" rel="noopener noreferrer">ArenaNet</a> and <a href="https://www.ncsoft.com/" target="_blank" rel="noopener noreferrer">NCSOFT</a>. Images sourced from <a href="https://wiki.guildwars.com/" target="_blank" rel="noopener noreferrer">Guild Wars Wiki</a>.</p>
+      <p class="disclaimer">This is a fan-made tool and is not affiliated with or endorsed by ArenaNet or NCSOFT.</p>
+    </footer>
+  </div>
+
+  <div id="cookieConsent" class="cookie-banner" style="display: none;">
+    <div class="cookie-content">
+      <p><i class="fas fa-cookie-bite"></i> This website uses localStorage to remember your theme preference (dark/light mode). No tracking cookies are used.</p>
+      <button id="cookieAccept" class="cookie-btn">Got it!</button>
+    </div>
+  </div>
+
+  <script src="zaishen_vq.js"></script>
+  <script src="mission.js"></script>
+</body>
+</html>

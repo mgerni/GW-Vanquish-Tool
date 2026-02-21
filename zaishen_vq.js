@@ -26,37 +26,40 @@ function getDateForZaishen() {
 async function getTodaysZaishenVanquish() {
   try {
     const todayDate = getDateForZaishen();
+    console.log('[Zaishen Vanquish] Today\'s date:', todayDate);
     
-    // Use MediaWiki API to fetch page content
+    // Use CORS proxy to bypass CORS restrictions
+    const corsProxy = 'https://corsproxy.io/?';
     const apiUrl = 'https://wiki.guildwars.com/api.php';
     const params = new URLSearchParams({
       action: 'query',
       titles: 'Zaishen_Vanquish/cycles',
-      prop: 'revisions',  // Get revisions to access page content
-      rvprop: 'content',  // Get the actual content
-      format: 'json',
-      origin: '*'  // Enable CORS
+      prop: 'revisions',
+      rvprop: 'content',
+      format: 'json'
     });
     
-    const response = await fetch(`${apiUrl}?${params}`, {
+    const fullUrl = corsProxy + encodeURIComponent(`${apiUrl}?${params}`);
+    console.log('[Zaishen Vanquish] Fetching via CORS proxy...');
+    
+    const response = await fetch(fullUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'application/json'
       }
     });
     
     if (!response.ok) {
-      console.error(`[Zaishen] Failed to fetch: ${response.status}`);
+      console.error(`[Zaishen Vanquish] Failed to fetch: ${response.status}`);
       return null;
     }
     
     const data = await response.json();
+    console.log('[Zaishen Vanquish] API response received');
     
-    // Extract page content from API response
     const pages = data.query?.pages;
     if (!pages) {
-      console.error('[Zaishen] Invalid API response - no pages found');
+      console.error('[Zaishen Vanquish] Invalid API response - no pages');
       return null;
     }
     
@@ -64,74 +67,146 @@ async function getTodaysZaishenVanquish() {
     const revisions = pages[pageId].revisions;
     
     if (!revisions || revisions.length === 0) {
-      console.error('[Zaishen] No revisions found');
+      console.error('[Zaishen Vanquish] No revisions found');
       return null;
     }
     
-    const pageContent = revisions[0]['*'];  // The '*' key contains the page content
-    
+    const pageContent = revisions[0]['*'];
     if (!pageContent) {
-      console.error('[Zaishen] No page content found');
+      console.error('[Zaishen Vanquish] No page content found');
       return null;
     }
     
-    // Parse the wikitext - look for table rows with multiple dates
     const lines = pageContent.split('\n');
-    
     let questName = null;
     
-    // In wiki markup, tables have format:
-    // | AreaName1 || AreaName2
-    // | date1 || date2 || date3 || ... || 26-02-16 || ...
-    // Look for the line containing our date, then get area name from previous line
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Check if this line contains the date we're looking for
       if (line.includes(todayDate) && line.includes('||')) {
-        // The area name is likely on the previous line
         if (i > 0) {
           const prevLine = lines[i - 1].trim();
           
-          // Extract area name from previous line
           let areaName = prevLine;
-          
-          // Remove leading | if present
           areaName = areaName.replace(/^\|+/, '').trim();
-          // Remove wiki links [[Link|Display]] -> Display or [[Link]] -> Link
           areaName = areaName.replace(/\[\[([^\]]*\|)?([^\]]*)\]\]/g, '$2');
-          // Remove any remaining brackets or pipes
           areaName = areaName.replace(/[\[\]\|]/g, '').trim();
           
           if (areaName && !areaName.includes('||')) {
             questName = areaName;
+            console.log('[Zaishen Vanquish] SUCCESS:', questName);
             break;
           }
         }
       }
     }
     
-    if (questName) {
-      return questName;
-    } else {
+    if (!questName) {
+      console.log('[Zaishen Vanquish] No vanquish found for date:', todayDate);
+    }
+    
+    return questName;
+    
+  } catch (err) {
+    console.error('[Zaishen Vanquish] Error:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch today's Zaishen Mission from the wiki page
+ * Extracts mission from "The current available quest" text
+ * Returns the quest name (mission) for today, or null if not found
+ */
+async function getTodaysZaishenMission() {
+  try {
+    console.log('[Zaishen Mission] Fetching from wiki via API...');
+    
+    // Use CORS proxy to bypass CORS restrictions
+    const corsProxy = 'https://corsproxy.io/?';
+    const apiUrl = 'https://wiki.guildwars.com/api.php';
+    const params = new URLSearchParams({
+      action: 'query',
+      titles: 'Zaishen_Mission',
+      prop: 'extracts',
+      explaintext: true,
+      format: 'json'
+    });
+    
+    const fullUrl = corsProxy + encodeURIComponent(`${apiUrl}?${params}`);
+    console.log('[Zaishen Mission] Fetching via CORS proxy...');
+    
+    const response = await fetch(fullUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error(`[Zaishen Mission] Failed to fetch: ${response.status}`);
       return null;
     }
     
+    const data = await response.json();
+    console.log('[Zaishen Mission] API response received');
+    
+    const pages = data.query?.pages;
+    if (!pages) {
+      console.error('[Zaishen Mission] Invalid API response - no pages');
+      return null;
+    }
+    
+    const pageId = Object.keys(pages)[0];
+    const extract = pages[pageId].extract;
+    
+    if (!extract) {
+      console.error('[Zaishen Mission] No extract found');
+      return null;
+    }
+    
+    console.log('[Zaishen Mission] Extract length:', extract.length);
+    
+    // Look for "The current available quest" pattern
+    const match = extract.match(/The current available quest,.*?is\s+([^(]+?)\s*(?:\(Zaishen quest\)|\.)/);
+    if (match) {
+      const missionName = match[1].trim();
+      console.log('[Zaishen Mission] SUCCESS:', missionName);
+      return missionName;
+    }
+    
+    console.warn('[Zaishen Mission] Could not find mission in extract');
+    console.log('[Zaishen Mission] Extract preview:', extract.substring(0, 500));
+    return null;
+    
   } catch (err) {
-    console.error('[Zaishen] Error:', err.message);
+    console.error('[Zaishen Mission] Error:', err.message);
     return null;
   }
 }
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { getTodaysZaishenVanquish, getDateForZaishen };
+  module.exports = { getTodaysZaishenVanquish, getTodaysZaishenMission, getDateForZaishen };
 }
 
 // Start fetching immediately (don't wait for DOMContentLoaded)
 (async () => {
-  const questName = await getTodaysZaishenVanquish();
-  if (questName) {
-    window.todaysZaishenArea = questName;
+  console.log('[Zaishen] Starting Zaishen data fetch...');
+  
+  const vanquishName = await getTodaysZaishenVanquish();
+  if (vanquishName) {
+    window.todaysZaishenArea = vanquishName;
+    console.log('[Zaishen] Set vanquish area:', vanquishName);
+  } else {
+    console.log('[Zaishen] No vanquish area found');
+  }
+  
+  const missionName = await getTodaysZaishenMission();
+  if (missionName) {
+    window.todaysZaishenMission = missionName;
+    console.log('[Zaishen] Set mission:', missionName);
+  } else {
+    console.log('[Zaishen] No mission found - window.todaysZaishenMission will be undefined');
   }
 })();

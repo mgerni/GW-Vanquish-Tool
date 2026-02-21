@@ -1,50 +1,58 @@
 :root {
   /* Light mode colors */
-  --gw-bg: #f5f5f5;
-  --gw-panel: #ffffff;
-  --gw-panel-2: #fafafa;
-  --gw-border: #d0d0d0;
-  --gw-gold: #9b7c3c;
-  --gw-text: #1a1a1a;
-  --gw-muted: #666666;
+  --gw-gold: #d4af37;
+  --gw-text: #333;
+  --gw-border: #ccc;
+  --gw-panel: #f5f5f5;
+  --gw-panel-2: #efefef;
+  --gw-muted: #666;
   --github-icon-color: #333;
+  --card-bg-light: #f9f9f9;
+  --text-primary: #333;
 }
 
 body.dark-mode {
   /* Dark mode colors */
-  --gw-bg: #0f1115;
-  --gw-panel: #1a1d24;
-  --gw-panel-2: #151821;
-  --gw-border: #2a2f3a;
-  --gw-gold: #c8a75a;
-  --gw-text: #e6e6e6;
-  --gw-muted: #9aa3ad;
-  --github-icon-color: #e6e6e6;
+  --gw-gold: #ff9d00;
+  --gw-text: #e0e0e0;
+  --gw-border: #444;
+  --gw-panel: #1a1a1a;
+  --gw-panel-2: #2d2d2d;
+  --gw-muted: #999;
+  --github-icon-color: #e0e0e0;
+  --card-bg-light: #2a2a2a;
+  --text-primary: #e0e0e0;
 }
 
 body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   margin: 0;
-  background:
-    radial-gradient(circle at top, rgba(200,167,90,0.08), transparent 40%),
-    var(--gw-bg);
+  padding: 0;
+  background-color: var(--gw-panel);
   color: var(--gw-text);
-  font-family: "Segoe UI", sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   max-width: 1100px;
-  margin: auto;
-  padding: 24px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* 🔝 Top bar */
 
 .topbar {
-  background: var(--gw-panel);
-  border: 1px solid var(--gw-border);
-  border-radius: 12px;
-  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gw-border);
   margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 h1 {
@@ -66,6 +74,23 @@ h1 {
 }
 
 .theme-toggle:hover {
+  color: var(--gw-text);
+  transform: scale(1.1);
+}
+
+/* Tool swap button */
+.tool-swap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gw-gold);
+  font-size: 20px;
+  text-decoration: none;
+  padding: 4px 8px;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.tool-swap:hover {
   color: var(--gw-text);
   transform: scale(1.1);
 }
@@ -118,24 +143,66 @@ h1 {
 
 .area-filters {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
 }
 
 .area-filters label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.area-filters label input[type="checkbox"] {
   cursor: pointer;
 }
 
 .area-filters label i {
-  font-size: 16px;
+  font-size: 14px;
+  color: var(--gw-text);
+  transition: color 0.2s;
+}
+
+.area-filters label:hover i {
   color: var(--gw-gold);
 }
 
-.area-filters label input[type="checkbox"] {
-  margin: 0;
+/* Mode toggle button styling */
+#modeIcon {
+  max-width: 32px;
+  max-height: 32px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
+.mode-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  background-color: var(--gw-panel-2);
+  border: 1px solid var(--gw-border);
+  border-radius: 4px;
   cursor: pointer;
+  color: var(--gw-text);
+  transition: background-color 0.2s;
+}
+
+.mode-toggle-btn:hover {
+  background-color: var(--gw-gold);
+  color: #000;
+}
+
+#modeLabel {
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--gw-text);
 }
 
 .effect-bar {
@@ -158,33 +225,61 @@ h1 {
 /* 👹 Foe card */
 
 .foe-card {
-  background-color: var(--gw-panel-2);
+  background: var(--gw-panel);
+  border: 1px solid var(--gw-border);
   border-radius: 8px;
-  padding: 8px 12px;        
-  width: 200px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-  transition: transform 0.2s, box-shadow 0.2s, max-height 0.3s ease;
+  padding: 0;
+  overflow: visible;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  max-height: 1000px;
-  overflow: hidden;
+  width: fit-content;
+  min-width: 100%;
+}
+
+.foe-card:hover {
+  border-color: var(--gw-gold);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.foe-card.is-boss {
+  border-color: #ff6b6b;
+  background: linear-gradient(135deg, var(--gw-panel), rgba(255, 107, 107, 0.05));
+}
+
+.card-header {
+  background: var(--gw-panel-2);
+  padding: 15px;
+  border-bottom: 1px solid var(--gw-border);
+  overflow: visible;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--gw-gold);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 .foe-card.minimized {
   max-height: 27px;
-  padding: 4px 8px;
+  padding: 0;
 }
 
 .foe-card h3 {
   margin: 0;      
-  font-size: 15px;          
+  font-size: 1.2em;          
   line-height: 1.2;
-  text-align: center;
+  text-align: left;
   flex: 1;
 }
 
 .foe-card h3 a.foe-link {
-  color: var(--gw-gold);    
+  color: inherit;    
   text-decoration: none; 
 }
 
@@ -207,51 +302,31 @@ h1 {
 .foe-card h3 a.foe-link.variant:focus {
   color: #ff6666;
 }
-
-
-.foe-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: var(--gw-gold);
-  font-size: 12px;
-  cursor: pointer;
-  padding: 2px 4px;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-
 .toggle-btn:hover {
-  color: #fff;
+  color: var(--gw-gold);
 }
 
 .card-content {
-  display: block;
+  padding: 15px;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
-
 
 .foe-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-bottom: 6px;
-  font-weight: bold;
-  color: var(--gw-gold);
-  font-size: 16px;
-  text-align: center;
-  border-bottom: 1px solid var(--gw-border);
-  padding-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 0;
+  flex-wrap: nowrap;
+  width: auto;
+}
+
+.foe-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 
 .foe-name {
@@ -259,6 +334,28 @@ h1 {
   color: inherit;
 }
 
+.prof-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: block;
+  object-fit: contain;
+}
+
+.boss-badge {
+  background: #ff6b6b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: bold;
+}
+
+.foe-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 0.9em;
+}
 
 /* 🧠 Skills - GW1 skill bar style */
 
@@ -266,32 +363,14 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 0;
   justify-content: flex-start;
   align-items: flex-start;
 }
 
-
-/* Skill item container - vertical stack inline */
+/* Skill item container */
 .skill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 2px;
-  margin: 0;
-  padding: 4px;
-  border-radius: 2px;
-  background-color: transparent;
-  border: none;
-  flex-shrink: 0;
-  width: auto;
-  height: auto;
-}
-
-.skill:hover {
-  background-color: var(--gw-panel);
-  border-radius: 4px;
+  display: contents;
 }
 
 .skill-image {
@@ -305,83 +384,112 @@ h1 {
 }
 
 .skill-name {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  font-size: 9px;
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.1;
-  white-space: nowrap;
-  max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: help;
+  font-size: 0.9em;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .skill-effects {
   display: flex;
   flex-wrap: wrap;
-  gap: 1px;
-  justify-content: center;
-  width: 50px;
+  gap: 5px;
+  width: 100%;
 }
 
-/* Effect badges - displayed below the image */
+/* Skill list layout */
+.skill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skill-list .skill-item {
+  padding: 5px 5px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-left: 3px solid var(--gw-gold);
+  padding-left: 10px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.skill-list .skill-item:last-child {
+  margin-bottom: 0;
+}
+
+.skill-list .skill-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.skill-list .skill-name {
+  flex: 1;
+  font-size: 0.9em;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.skill-list .skill-effects {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+  flex-basis: 100%;
+  margin-top: 5px;
+}
+
+/* Effect badges */
 .effect-badge {
   display: inline-block;
-  padding: 1px 3px;
-  border-radius: 2px;
-  font-size: 7px;
-  line-height: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75em;
   font-weight: 700;
-  color: black;
   white-space: nowrap;
 }
 
-.effect-badge.knockdown { background-color: #f8f17a; }       
-.effect-badge.monster_skill { background-color: #d86c00; }  
-.effect-badge.resurrection { background-color: #9bc4ff; }     
-.effect-badge.interrupt { background-color: #ff9aff; }       
-.effect-badge.slow_cripple { background-color: #969664; }
-.effect-badge.enchantment_removal { background-color: #cba3ff; } 
-.effect-badge.hex_removal { background-color: #b28aff; }        
-.effect-badge.condition_removal { background-color: #9966ff; }   
-.effect-badge.ims { background-color: #8fff8f; }
-.effect-badge.elite { background-color: #fedd02; }
+.effect-badge.knockdown { background-color: #f8f17a; color: #000; }       
+.effect-badge.monster_skill { background-color: #d86c00; color: #fff; }  
+.effect-badge.resurrection { background-color: #9bc4ff; color: #000; }     
+.effect-badge.interrupt { background-color: #ff9aff; color: #000; }       
+.effect-badge.slow_cripple { background-color: #969664; color: #fff; }
+.effect-badge.enchantment_removal { background-color: #cba3ff; color: #000; } 
+.effect-badge.hex_removal { background-color: #b28aff; color: #000; }        
+.effect-badge.condition_removal { background-color: #9966ff; color: #fff; }   
+.effect-badge.ims { background-color: #8fff8f; color: #000; }
+.effect-badge.elite { background-color: #fedd02; color: #000; }
 
 .effect-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 12px;
-  padding: 4px 0;
-  background-color: var(--gw-panel-1); /* subtle panel behind badges */
+  padding: 8px;
+  background-color: var(--gw-panel-2);
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
-
 
 .effect-bar .effect-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 5px;
-  color: black;
-  background-color: rgba(85, 85, 85, 0.1); /* semi-transparent grey */
-  font-weight: 600;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
 }
 
-
 .area-title {
-  font-size: 22px;
+  font-size: 1.4em;
   color: var(--gw-gold);
-  text-align: center;
-  width: 100%;         /* force it to span full width of flex container */
-  margin-bottom: 16px; /* spacing below */
-  margin-top: 12px;    /* spacing above */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+  margin-top: 0;
 }
 
 
